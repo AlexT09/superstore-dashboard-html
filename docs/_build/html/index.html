@@ -3,7 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Superstore · Dashboard de Ventas</title>
+<title>Superstore · Executive Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
 <script>/*!
  * Chart.js v4.4.4
  * https://www.chartjs.org
@@ -21,57 +23,58 @@
 </script>
 <style>
 :root{
-  --bg:#f4f6f9; --card:#ffffff; --header:#14213d; --text:#1f2937; --muted:#6b7280; --line:#e5e7eb;
-  --c1:#2563eb; --c2:#f59e0b; --c3:#10b981; --c4:#8b5cf6; --pos:#059669; --neg:#dc2626;
-  --gap:16px; --r:12px;
+  /* Paleta formal: grafito + petróleo; borgoña solo para pérdidas */
+  --ink:#161b22; --navy:#1f4e5f; --steel:#6d8f99; --mist:#c3d1d5; --haze:#e7eef0;
+  --accent:#3a3f47; --soft:#f5f6f6; --neg:#8e2c3a; --pos:#1f4e5f;
+  --bg:#f3f3f1; --card:#ffffff; --text:#1d2127; --muted:#6b7078; --line:#e2e2de;
+  --gap:20px; --r:10px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.45}
-.wrap{max-width:1440px;margin:0 auto;padding:var(--gap)}
-header{background:linear-gradient(120deg,#14213d 0%,#1e3a8a 100%);color:#fff;border-radius:var(--r);padding:20px 24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;margin-bottom:var(--gap)}
-header h1{font-size:21px;font-weight:700;letter-spacing:.2px}
-header p{font-size:13px;opacity:.75;margin-top:2px}
+body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.5;-webkit-font-smoothing:antialiased}
+.top{background:var(--ink);color:#fff}
+.top .in{max-width:1440px;margin:0 auto;padding:22px 28px;display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:18px}
+.brand .eyebrow{font-size:11px;letter-spacing:1.6px;text-transform:uppercase;color:var(--mist);font-weight:600}
+.brand h1{font-size:22px;font-weight:600;letter-spacing:-.2px;margin-top:4px}
+.brand p{font-size:13px;color:#a3aab3;margin-top:2px}
 .filters{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
-.fg{display:flex;flex-direction:column;gap:3px}
-.fg label{font-size:11px;text-transform:uppercase;letter-spacing:.6px;opacity:.7}
-.fg select{padding:7px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.12);color:#fff;font-size:13px;min-width:120px}
-.fg select option{color:#111}
-button.reset{padding:8px 14px;border-radius:8px;border:none;background:#fff;color:#14213d;font-weight:600;font-size:13px;cursor:pointer}
-.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:var(--gap);margin-bottom:var(--gap)}
-.kpi{background:var(--card);border-radius:var(--r);padding:16px 20px;box-shadow:0 1px 3px rgba(0,0,0,.06);border-top:4px solid var(--c1)}
-.kpi:nth-child(2){border-top-color:var(--c3)} .kpi:nth-child(3){border-top-color:var(--c2)} .kpi:nth-child(4){border-top-color:var(--c4)} .kpi:nth-child(5){border-top-color:#0ea5e9}
-.kpi .l{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
-.kpi .v{font-size:27px;font-weight:700;margin:2px 0}
-.kpi .d{font-size:12.5px;font-weight:600;color:var(--muted)}
-.kpi .d.pos{color:var(--pos)} .kpi .d.neg{color:var(--neg)}
-.insights{background:var(--card);border-radius:var(--r);padding:18px 22px;box-shadow:0 1px 3px rgba(0,0,0,.06);margin-bottom:var(--gap);border-left:5px solid var(--c2)}
-.insights h2{font-size:15px;margin-bottom:10px;display:flex;align-items:center;gap:8px}
-.insights ul{list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:10px 22px}
-.insights li{font-size:13.5px;padding-left:22px;position:relative}
-.insights li::before{content:attr(data-i);position:absolute;left:0;top:0}
+.fg{display:flex;flex-direction:column;gap:4px}
+.fg label{font-size:10.5px;text-transform:uppercase;letter-spacing:1px;color:#8a929c;font-weight:500}
+.fg select{padding:8px 12px;border-radius:6px;border:1px solid #343c47;background:#212832;color:#fff;font:inherit;font-size:13px;min-width:130px;cursor:pointer}
+.fg select:focus{outline:2px solid var(--mist);outline-offset:1px}
+.fg select option{color:#111;background:#fff}
+button.reset{padding:8px 16px;border-radius:6px;border:1px solid var(--mist);background:transparent;color:#e6eaee;font:inherit;font-weight:600;font-size:13px;cursor:pointer;transition:.15s}
+button.reset:hover{background:#e6eaee;color:var(--ink)}
+.wrap{max-width:1440px;margin:0 auto;padding:var(--gap) 28px}
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:var(--gap);margin:calc(var(--gap)*-0) 0 var(--gap)}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;position:relative;overflow:hidden}
+.kpi::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--navy)}
+.kpi .l{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-weight:500}
+.kpi .v{font-size:28px;font-weight:700;color:var(--ink);margin:6px 0 4px;letter-spacing:-.5px;font-variant-numeric:tabular-nums}
+.kpi .d{font-size:12px;font-weight:600;color:var(--muted);display:inline-block;padding:2px 8px;border-radius:20px;background:#f2f4f7}
+.kpi .d.pos{color:var(--navy);background:var(--haze)} .kpi .d.neg{color:var(--neg);background:#fbeceb}
+.kpi .d:empty{display:none}
+.section-title{font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:var(--muted);font-weight:600;margin:6px 0 12px;display:flex;align-items:center;gap:10px}
+.section-title::after{content:"";flex:1;height:1px;background:var(--line)}
 .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:var(--gap);margin-bottom:var(--gap)}
-.card{background:var(--card);border-radius:var(--r);padding:16px 20px;box-shadow:0 1px 3px rgba(0,0,0,.06);min-width:0}
-.card h3{font-size:14px;font-weight:650}
-.card .sub{font-size:12px;color:var(--muted);margin-bottom:10px}
-.s8{grid-column:span 8}.s4{grid-column:span 4}.s6{grid-column:span 6}.s12{grid-column:span 12}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:20px 22px 0;min-width:0;display:flex;flex-direction:column}
+.card h3{font-size:15px;font-weight:600;color:var(--ink)}
+.card .sub{font-size:12.5px;color:var(--muted);margin:2px 0 14px}
+.s8{grid-column:span 8}.s4{grid-column:span 4}.s6{grid-column:span 6}
 .ch{position:relative;height:290px}.ch.tall{height:360px}
-table{width:100%;border-collapse:collapse;font-size:13px}
-th{text-align:left;padding:9px 10px;border-bottom:2px solid var(--line);color:var(--muted);font-size:11.5px;text-transform:uppercase;letter-spacing:.5px;cursor:pointer;user-select:none;white-space:nowrap}
-th:hover{color:var(--text)}
-td{padding:8px 10px;border-bottom:1px solid #f1f3f5}
-td.n{text-align:right;font-variant-numeric:tabular-nums} th.n{text-align:right}
-tr:hover td{background:#f9fafb}
-.bar{height:6px;border-radius:3px;background:var(--c1);opacity:.75}
-.neg{color:var(--neg)} .pos{color:var(--pos)}
-footer{font-size:12px;color:var(--muted);text-align:center;padding:8px 0 4px}
+.insight{margin:18px -22px 0;padding:14px 22px 16px 19px;background:var(--soft);border-top:1px solid var(--line);border-left:3px solid var(--navy);border-radius:0 0 var(--r) var(--r);font-size:13.5px;color:#3b4048;flex:1}
+.insight .tag{display:block;font-size:10.5px;letter-spacing:1.2px;text-transform:uppercase;color:var(--navy);font-weight:700;margin-bottom:4px}
+.insight p+p{margin-top:6px}
+.insight b{color:var(--ink);font-weight:600}
+.neg{color:var(--neg)!important} .pos{color:var(--navy)!important}
+footer{font-size:12px;color:var(--muted);text-align:center;padding:10px 0 24px}
+@media (max-width:1100px){.kpis{grid-template-columns:repeat(3,1fr)}}
 @media (max-width:980px){.s8,.s4,.s6{grid-column:span 12}}
-@media (max-width:600px){.kpis{grid-template-columns:repeat(2,1fr)}.insights ul{grid-template-columns:1fr}}
+@media (max-width:600px){.kpis{grid-template-columns:repeat(2,1fr)}.top .in,.wrap{padding-left:16px;padding-right:16px}.fg select{min-width:0;width:100%}.fg{flex:1 1 45%}}
 </style>
 </head>
 <body>
-<div class="wrap">
-<header>
-  <div><h1>Superstore · Dashboard de Ventas y Rentabilidad</h1><p>EDA Superstore 2014–2017 · 9.994 líneas de pedido · Estados Unidos</p></div>
+<div class="top"><div class="in">
+  <div class="brand"><div class="eyebrow">Executive Overview</div><h1>Superstore · Ventas y Rentabilidad</h1><p>2014–2017 · 9.994 líneas de pedido · Estados Unidos</p></div>
   <div class="filters">
     <div class="fg"><label for="fYear">Año</label><select id="fYear"></select></div>
     <div class="fg"><label for="fRegion">Región</label><select id="fRegion"></select></div>
@@ -79,37 +82,35 @@ footer{font-size:12px;color:var(--muted);text-align:center;padding:8px 0 4px}
     <div class="fg"><label for="fSeg">Segmento</label><select id="fSeg"></select></div>
     <button class="reset" id="reset">Limpiar filtros</button>
   </div>
-</header>
+</div></div>
 
+<div class="wrap">
 <section class="kpis">
   <div class="kpi"><div class="l">Ventas</div><div class="v" id="kSales">–</div><div class="d" id="kSalesD"></div></div>
   <div class="kpi"><div class="l">Utilidad</div><div class="v" id="kProfit">–</div><div class="d" id="kProfitD"></div></div>
   <div class="kpi"><div class="l">Margen</div><div class="v" id="kMargin">–</div><div class="d" id="kMarginD"></div></div>
   <div class="kpi"><div class="l">Pedidos</div><div class="v" id="kOrders">–</div><div class="d" id="kOrdersD"></div></div>
-  <div class="kpi"><div class="l">Ticket medio / pedido</div><div class="v" id="kTicket">–</div><div class="d" id="kTicketD"></div></div>
+  <div class="kpi"><div class="l">Ticket medio</div><div class="v" id="kTicket">–</div><div class="d" id="kTicketD"></div></div>
 </section>
 
-<section class="insights">
-  <h2>💡 Insights automáticos <span style="font-weight:400;font-size:12px;color:var(--muted)">se recalculan con cada filtro</span></h2>
-  <ul id="insights"></ul>
+<div class="section-title">Desempeño comercial</div>
+<section class="grid">
+  <div class="card s8"><h3>Evolución mensual</h3><div class="sub">Ventas (barras), tendencia suavizada y utilidad por mes</div><div class="ch"><canvas id="cTrend"></canvas></div><div class="insight" id="iTrend"></div></div>
+  <div class="card s4"><h3>Categorías: volumen vs. valor</h3><div class="sub">Participación en pedidos y en ventas</div><div class="ch"><canvas id="cCat"></canvas></div><div class="insight" id="iCat"></div></div>
 </section>
 
+<div class="section-title">Rentabilidad</div>
 <section class="grid">
-  <div class="card s8"><h3>Evolución mensual</h3><div class="sub">Ventas (barras) y utilidad (línea) por mes</div><div class="ch"><canvas id="cTrend"></canvas></div></div>
-  <div class="card s4"><h3>Mezcla de ventas por categoría</h3><div class="sub">% de las ventas del periodo</div><div class="ch"><canvas id="cCat"></canvas></div></div>
+  <div class="card s6"><h3>Utilidad por subcategoría</h3><div class="sub">Resaltadas, las subcategorías con utilidad negativa</div><div class="ch tall"><canvas id="cSub"></canvas></div><div class="insight" id="iSub"></div></div>
+  <div class="card s6"><h3>Impacto del descuento en el margen</h3><div class="sub">Margen (%) y ventas por tramo de descuento</div><div class="ch tall"><canvas id="cDisc"></canvas></div><div class="insight" id="iDisc"></div></div>
 </section>
+
+<div class="section-title">Geografía y estacionalidad</div>
 <section class="grid">
-  <div class="card s6"><h3>Utilidad por subcategoría</h3><div class="sub">En rojo, las subcategorías que pierden dinero</div><div class="ch tall"><canvas id="cSub"></canvas></div></div>
-  <div class="card s6"><h3>El descuento destruye margen</h3><div class="sub">Margen (%) y ventas por tramo de descuento</div><div class="ch tall"><canvas id="cDisc"></canvas></div></div>
+  <div class="card s6"><h3>Regiones: ventas vs. margen</h3><div class="sub">Ventas (barras) y margen % (marcadores)</div><div class="ch"><canvas id="cRegion"></canvas></div><div class="insight" id="iRegion"></div></div>
+  <div class="card s6"><h3>Estacionalidad</h3><div class="sub">Participación de cada mes en las ventas; resaltados, los meses más fuertes</div><div class="ch"><canvas id="cSeason"></canvas></div><div class="insight" id="iSeason"></div></div>
 </section>
-<section class="grid">
-  <div class="card s6"><h3>Regiones: ventas vs. margen</h3><div class="sub">Ventas (barras) y margen % (puntos)</div><div class="ch"><canvas id="cRegion"></canvas></div></div>
-  <div class="card s6"><h3>Estacionalidad</h3><div class="sub">% de las ventas anuales que cae en cada mes (promedio del periodo)</div><div class="ch"><canvas id="cSeason"></canvas></div></div>
-</section>
-<section class="grid">
-  <div class="card s12"><h3>Estados: ranking</h3><div class="sub">Haz clic en un encabezado para ordenar · top 15</div><div id="tbl"></div></div>
-</section>
-<footer>Fuente: Sample – Superstore (superstore_transformado.csv, proyecto rbook) · Generado con el plugin Data de Claude</footer>
+<footer>Fuente: Sample – Superstore</footer>
 </div>
 
 <script>
@@ -117,7 +118,7 @@ const D = {"lookups":{"region":["Central","East","South","West"],"cat":["Furnitu
 const L = D.lookups;
 const ROWS = D.rows.map(r => ({ym:r[0], y:+r[0].slice(0,4), m:+r[0].slice(5,7), reg:L.region[r[1]], cat:L.cat[r[2]], sub:L.sub[r[3]], seg:L.seg[r[4]], st:L.state[r[5]], o:r[6], s:r[7], p:r[8], q:r[9], d:r[10]}));
 const MES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-const CAT_COL = {'Furniture':'#f59e0b','Office Supplies':'#10b981','Technology':'#2563eb'};
+const K = {ink:'#161b22', navy:'#1f4e5f', steel:'#6d8f99', mist:'#c3d1d5', acc:'#3a3f47', neg:'#8e2c3a', grid:'#efefec'};
 
 const fmt$ = v => { const a=Math.abs(v), s=v<0?'-':''; return a>=1e6? s+'$'+(a/1e6).toFixed(2)+'M' : a>=1e3? s+'$'+(a/1e3).toFixed(1)+'K' : s+'$'+a.toFixed(0); };
 const fmtN = v => v.toLocaleString('es-CO');
@@ -134,32 +135,42 @@ function currentFilters(){ return {y:document.getElementById('fYear').value, reg
 function applyF(f,ignoreYear){ return ROWS.filter(r => (ignoreYear||!f.y||r.y==f.y) && (!f.reg||r.reg==f.reg) && (!f.cat||r.cat==f.cat) && (!f.seg||r.seg==f.seg)); }
 
 Chart.defaults.font.family = getComputedStyle(document.body).fontFamily;
-Chart.defaults.color = '#4b5563';
+Chart.defaults.font.size = 11.5;
+Chart.defaults.color = '#667085';
 Chart.defaults.plugins.legend.labels.usePointStyle = true;
+Chart.defaults.plugins.legend.labels.boxWidth = 8;
+Chart.defaults.plugins.legend.align = 'end';
+Chart.defaults.plugins.tooltip.backgroundColor = K.ink;
+Chart.defaults.plugins.tooltip.padding = 10;
+Chart.defaults.plugins.tooltip.cornerRadius = 6;
 const C = {};
-const moneyAxis = {ticks:{callback:v=>fmt$(v)}, grid:{color:'#eef0f3'}};
+const moneyAxis = {ticks:{callback:v=>fmt$(v)}, grid:{color:K.grid}, border:{display:false}};
+const noGrid = {grid:{display:false}, border:{color:'#d0d5dd'}};
 
 function mk(id,cfg){ C[id] = new Chart(document.getElementById(id),cfg); }
 mk('cTrend',{type:'bar',data:{labels:[],datasets:[
-  {type:'bar',label:'Ventas',data:[],backgroundColor:'#2563ebB3',borderRadius:3,yAxisID:'y',order:2},
-  {type:'line',label:'Utilidad',data:[],borderColor:'#10b981',backgroundColor:'#10b981',tension:.3,pointRadius:2,yAxisID:'y',order:1}]},
-  options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${fmt$(c.parsed.y)}`}}},scales:{x:{grid:{display:false},ticks:{maxRotation:0,autoSkip:true,maxTicksLimit:16}},y:moneyAxis}}});
-mk('cCat',{type:'doughnut',data:{labels:[],datasets:[{data:[],backgroundColor:[],borderColor:'#fff',borderWidth:3}]},
-  options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{position:'bottom'},tooltip:{callbacks:{label:c=>{const t=c.dataset.data.reduce((a,b)=>a+b,0);return `${c.label}: ${fmt$(c.parsed)} (${(c.parsed/t*100).toFixed(1)}%)`;}}}}}});
-mk('cSub',{type:'bar',data:{labels:[],datasets:[{label:'Utilidad',data:[],backgroundColor:[],borderRadius:3}]},
-  options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>'Utilidad: '+fmt$(c.parsed.x)}}},scales:{x:moneyAxis,y:{grid:{display:false},ticks:{font:{size:11}}}}}});
+  {type:'bar',label:'Ventas',data:[],backgroundColor:K.navy+'D9',borderRadius:2,yAxisID:'y',order:2},
+  {type:'line',label:'Tendencia',data:[],borderColor:K.steel,borderDash:[5,4],tension:.4,pointRadius:0,pointHoverRadius:0,borderWidth:2,yAxisID:'y',order:0},
+  {type:'line',label:'Utilidad',data:[],borderColor:K.acc,backgroundColor:K.acc,tension:.3,pointRadius:0,pointHoverRadius:4,borderWidth:2,yAxisID:'y',order:1}]},
+  options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${fmt$(c.parsed.y)}`}}},scales:{x:{...noGrid,ticks:{maxRotation:0,autoSkip:true,maxTicksLimit:16}},y:moneyAxis}}});
+mk('cCat',{type:'bar',data:{labels:[],datasets:[
+  {label:'% pedidos',data:[],backgroundColor:K.mist,borderRadius:2},
+  {label:'% ventas',data:[],backgroundColor:K.navy,borderRadius:2}]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${pct(c.parsed.y)}`}}},scales:{x:noGrid,y:{ticks:{callback:v=>v+'%'},grid:{color:K.grid},border:{display:false},beginAtZero:true}}}});
+mk('cSub',{type:'bar',data:{labels:[],datasets:[{label:'Utilidad',data:[],backgroundColor:[],borderRadius:2}]},
+  options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>'Utilidad: '+fmt$(c.parsed.x)}}},scales:{x:moneyAxis,y:{...noGrid,ticks:{font:{size:11}}}}}});
 mk('cDisc',{type:'bar',data:{labels:[],datasets:[
-  {type:'bar',label:'Margen %',data:[],backgroundColor:[],borderRadius:4,yAxisID:'y'},
-  {type:'line',label:'Ventas',data:[],borderColor:'#6b7280',backgroundColor:'#6b7280',pointRadius:4,yAxisID:'y1'}]},
+  {type:'bar',label:'Margen %',data:[],backgroundColor:[],borderRadius:3,yAxisID:'y',order:2},
+  {type:'line',label:'Ventas',data:[],borderColor:K.acc,backgroundColor:K.acc,pointRadius:4,borderWidth:2,yAxisID:'y1',order:1}]},
   options:{responsive:true,maintainAspectRatio:false,plugins:{tooltip:{callbacks:{label:c=>c.dataset.yAxisID==='y'?`Margen: ${pct(c.parsed.y)}`:`Ventas: ${fmt$(c.parsed.y)}`}}},
-  scales:{x:{grid:{display:false},title:{display:true,text:'Tramo de descuento'}},y:{ticks:{callback:v=>v+'%'},grid:{color:'#eef0f3'},title:{display:true,text:'Margen %'}},y1:{position:'right',grid:{display:false},ticks:{callback:v=>fmt$(v)}}}}});
+  scales:{x:{...noGrid,title:{display:true,text:'Tramo de descuento'}},y:{ticks:{callback:v=>v+'%'},grid:{color:K.grid},border:{display:false},title:{display:true,text:'Margen %'}},y1:{position:'right',grid:{display:false},border:{display:false},ticks:{callback:v=>fmt$(v)}}}}});
 mk('cRegion',{type:'bar',data:{labels:[],datasets:[
-  {type:'bar',label:'Ventas',data:[],backgroundColor:'#2563ebB3',borderRadius:4,yAxisID:'y'},
-  {type:'line',label:'Margen %',data:[],borderColor:'#f59e0b',backgroundColor:'#f59e0b',showLine:false,pointRadius:7,pointStyle:'rectRot',yAxisID:'y1'}]},
+  {type:'bar',label:'Ventas',data:[],backgroundColor:K.navy+'D9',borderRadius:3,yAxisID:'y',order:2},
+  {type:'line',label:'Margen %',data:[],borderColor:K.acc,backgroundColor:K.acc,showLine:false,pointRadius:7,pointHoverRadius:8,pointStyle:'rectRot',yAxisID:'y1',order:1}]},
   options:{responsive:true,maintainAspectRatio:false,plugins:{tooltip:{callbacks:{label:c=>c.dataset.yAxisID==='y'?`Ventas: ${fmt$(c.parsed.y)}`:`Margen: ${pct(c.parsed.y)}`}}},
-  scales:{x:{grid:{display:false}},y:moneyAxis,y1:{position:'right',grid:{display:false},ticks:{callback:v=>v+'%'},beginAtZero:true}}}});
-mk('cSeason',{type:'bar',data:{labels:MES,datasets:[{label:'% ventas',data:[],backgroundColor:[],borderRadius:4}]},
-  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>pct(c.parsed.y)+' de las ventas'}}},scales:{x:{grid:{display:false}},y:{ticks:{callback:v=>v+'%'},grid:{color:'#eef0f3'}}}}});
+  scales:{x:noGrid,y:moneyAxis,y1:{position:'right',grid:{display:false},border:{display:false},ticks:{callback:v=>v+'%'},beginAtZero:true}}}});
+mk('cSeason',{type:'bar',data:{labels:MES,datasets:[{label:'% ventas',data:[],backgroundColor:[],borderRadius:3}]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>pct(c.parsed.y)+' de las ventas'}}},scales:{x:noGrid,y:{ticks:{callback:v=>v+'%'},grid:{color:K.grid},border:{display:false}}}}});
 
 function discBand(d){ return d===0?'0%':d<=0.2?'1–20%':d<=0.4?'21–40%':'>40%'; }
 const BANDS=['0%','1–20%','21–40%','>40%'];
@@ -171,8 +182,8 @@ function setD(id,cur,prev,label,isPct){
   el.textContent = `${diff>=0?'▲':'▼'} ${isPct? Math.abs(diff).toFixed(1)+' pp':Math.abs(diff).toFixed(1)+'%'} ${label}`;
   el.className = 'd '+(diff>=0?'pos':'neg');
 }
+function setI(id,...lines){ const t=lines.filter(Boolean); document.getElementById(id).innerHTML='<span class="tag">Insight</span>'+(t.length?t.map(x=>`<p>${x}</p>`).join(''):'<p>Sin datos suficientes para esta combinación de filtros.</p>'); }
 
-let sortKey='s', sortDir=-1;
 function update(){
   const f=currentFilters(); const rows=applyF(f); const A=agg(rows);
   // comparación: año seleccionado vs anterior; sin año → 2017 vs 2016
@@ -191,54 +202,68 @@ function update(){
   const byM=groupBy(rows,'ym'); const months=Object.keys(byM).sort();
   C.cTrend.data.labels=months.map(k=>MES[+k.slice(5)-1]+' '+k.slice(2,4));
   C.cTrend.data.datasets[0].data=months.map(k=>sum(byM[k],r=>r.s));
-  C.cTrend.data.datasets[1].data=months.map(k=>sum(byM[k],r=>r.p));
+  const mS=months.map(k=>sum(byM[k],r=>r.s));
+  C.cTrend.data.datasets[1].data=mS.map((_,i)=>{const w=mS.slice(Math.max(0,i-5),i+1);return w.reduce((a,b)=>a+b,0)/w.length;});
+  C.cTrend.data.datasets[2].data=months.map(k=>sum(byM[k],r=>r.p));
   // categorías
   const byC=groupBy(rows,'cat'); const cats=L.cat.filter(c=>byC[c]);
-  C.cCat.data.labels=cats; C.cCat.data.datasets[0].data=cats.map(c=>sum(byC[c],r=>r.s)); C.cCat.data.datasets[0].backgroundColor=cats.map(c=>CAT_COL[c]);
+  const catA=cats.map(c=>({c,n:byC[c].length/rows.length*100,s:sum(byC[c],r=>r.s)/(A.s||1)*100}));
+  C.cCat.data.labels=cats; C.cCat.data.datasets[0].data=catA.map(x=>x.n); C.cCat.data.datasets[1].data=catA.map(x=>x.s);
   // subcategorías
   const byS=groupBy(rows,'sub'); const subs=Object.keys(byS).map(k=>({k,p:sum(byS[k],r=>r.p),s:sum(byS[k],r=>r.s)})).sort((a,b)=>b.p-a.p);
-  C.cSub.data.labels=subs.map(x=>x.k); C.cSub.data.datasets[0].data=subs.map(x=>x.p); C.cSub.data.datasets[0].backgroundColor=subs.map(x=>x.p<0?'#dc2626':'#10b981CC');
+  C.cSub.data.labels=subs.map(x=>x.k); C.cSub.data.datasets[0].data=subs.map(x=>x.p); C.cSub.data.datasets[0].backgroundColor=subs.map(x=>x.p<0?K.neg:K.navy+'D9');
   // descuento
   const byD=groupBy(rows.map(r=>({...r,b:discBand(r.d)})),'b'); const bands=BANDS.filter(b=>byD[b]);
-  const bm=bands.map(b=>{const a=agg(byD[b]);return a;});
-  C.cDisc.data.labels=bands; C.cDisc.data.datasets[0].data=bm.map(a=>a.m); C.cDisc.data.datasets[0].backgroundColor=bm.map(a=>a.m<0?'#dc2626':'#10b981'); C.cDisc.data.datasets[1].data=bm.map(a=>a.s);
+  const bm=bands.map(b=>agg(byD[b]));
+  C.cDisc.data.labels=bands; C.cDisc.data.datasets[0].data=bm.map(a=>a.m); C.cDisc.data.datasets[0].backgroundColor=bm.map(a=>a.m<0?K.neg:K.navy+'D9'); C.cDisc.data.datasets[1].data=bm.map(a=>a.s);
   // regiones
   const byR=groupBy(rows,'reg'); const regs=L.region.filter(r=>byR[r]).map(r=>({r,...agg(byR[r])})).sort((a,b)=>b.s-a.s);
   C.cRegion.data.labels=regs.map(x=>x.r); C.cRegion.data.datasets[0].data=regs.map(x=>x.s); C.cRegion.data.datasets[1].data=regs.map(x=>x.m);
   // estacionalidad
   const bym=Array(12).fill(0); rows.forEach(r=>bym[r.m-1]+=r.s); const seas=bym.map(v=>A.s?v/A.s*100:0); const mx=Math.max(...seas);
-  C.cSeason.data.datasets[0].data=seas; C.cSeason.data.datasets[0].backgroundColor=seas.map(v=>v>=mx*0.8?'#f59e0b':'#2563eb80');
+  C.cSeason.data.datasets[0].data=seas; C.cSeason.data.datasets[0].backgroundColor=seas.map(v=>v>=mx*0.8?K.navy:K.mist);
   Object.values(C).forEach(c=>c.update('none'));
 
-  // tabla estados
-  const bySt=groupBy(rows,'st'); window.__st=Object.keys(bySt).map(k=>({st:k,...agg(bySt[k])}));
-  renderTable();
-
-  // insights
-  const ins=[];
-  if(!rows.length){document.getElementById('insights').innerHTML='<li data-i="⚠️">No hay datos para esta combinación de filtros.</li>';return;}
-  const topCat=cats.map(c=>({c,s:sum(byC[c],r=>r.s)})).sort((a,b)=>b.s-a.s)[0];
-  if(cats.length>1) ins.push(['🏆',`<b>${topCat.c}</b> lidera con el <b>${pct(topCat.s/A.s*100)}</b> de las ventas del periodo.`]);
-  const losers=subs.filter(x=>x.p<0);
-  if(losers.length) ins.push(['🔻',`<b>${losers.length} subcategoría${losers.length>1?'s':''}</b> pierde${losers.length>1?'n':''} dinero${losers.length>3?'; las mayores':''}: ${losers.slice().reverse().slice(0,3).map(x=>`${x.k} (<span class="neg">${fmt$(x.p)}</span>)`).join(', ')}.`]);
-  else ins.push(['✅','Ninguna subcategoría tiene utilidad negativa con estos filtros.']);
-  const d0=byD['0%']?agg(byD['0%']):null; const hi=[...(byD['21–40%']||[]),...(byD['>40%']||[])];
-  if(d0 && hi.length){ const ah=agg(hi); ins.push(['🏷️',`Sin descuento el margen es <b class="pos">${pct(d0.m)}</b>; con descuentos >20% cae a <b class="neg">${pct(ah.m)}</b> ${ah.p<0?`y deja una pérdida de <b class="neg">${fmt$(-ah.p)}</b>`:`con utilidad de <b>${fmt$(ah.p)}</b>`}.`]); }
-  if(regs.length>1){ const bm2=[...regs].sort((a,b)=>b.m-a.m); ins.push(['📍',`<b>${bm2[0].r}</b> es la región más rentable (margen ${pct(bm2[0].m)}); <b>${bm2.at(-1).r}</b> la menos (${pct(bm2.at(-1).m)}).`]); }
-  const q4=(bym[8]+bym[10]+bym[11])/A.s*100; ins.push(['📅',`Septiembre, noviembre y diciembre concentran el <b>${pct(q4)}</b> de las ventas: el cierre de año es clave para inventario y campañas.`]);
-  if(cur && P){ const g=(cur.s-P.s)/P.s*100; ins.push([g>=0?'📈':'📉',`Ventas ${f.y||'2017'} vs ${f.y?f.y-1:2016}: <b class="${g>=0?'pos':'neg'}">${g>=0?'+':''}${pct(g)}</b>; ticket medio ${fmt$(cur.t)} (${cur.t>=P.t?'sube':'baja'} ${pct(Math.abs((cur.t-P.t)/P.t*100))}).`]); }
-  const st=[...window.__st].sort((a,b)=>a.p-b.p)[0]; if(st && st.p<0) ins.push(['⚠️',`<b>${st.st}</b> es el estado con mayor pérdida (<span class="neg">${fmt$(st.p)}</span>) pese a vender ${fmt$(st.s)}.`]);
-  document.getElementById('insights').innerHTML=ins.map(([i,t])=>`<li data-i="${i}">${t}</li>`).join('');
-}
-
-function renderTable(){
-  const data=[...window.__st].sort((a,b)=> (a[sortKey]>b[sortKey]?1:-1)*sortDir).slice(0,15);
-  const maxS=Math.max(...window.__st.map(x=>x.s),1);
-  const cols=[['st','Estado'],['s','Ventas'],['p','Utilidad'],['m','Margen'],['o','Pedidos'],['t','Ticket medio']];
-  let h='<table><thead><tr>'+cols.map(([k,l])=>`<th class="${k==='st'?'':'n'}" data-k="${k}">${l}${sortKey===k?(sortDir<0?' ▼':' ▲'):''}</th>`).join('')+'<th style="width:18%">Peso en ventas</th></tr></thead><tbody>';
-  data.forEach(r=>{h+=`<tr><td>${r.st}</td><td class="n">${fmt$(r.s)}</td><td class="n ${r.p<0?'neg':''}">${fmt$(r.p)}</td><td class="n ${r.m<0?'neg':''}">${pct(r.m)}</td><td class="n">${fmtN(r.o)}</td><td class="n">${fmt$(r.t)}</td><td><div class="bar" style="width:${(r.s/maxS*100).toFixed(1)}%"></div></td></tr>`;});
-  document.getElementById('tbl').innerHTML=h+'</tbody></table>';
-  document.querySelectorAll('#tbl th[data-k]').forEach(th=>th.onclick=()=>{const k=th.dataset.k; if(sortKey===k)sortDir*=-1; else {sortKey=k;sortDir=k==='st'?1:-1;} renderTable();});
+  // insights bajo cada visualización: lecturas sutiles, sin cifras
+  if(!rows.length){ ['iTrend','iCat','iSub','iDisc','iRegion','iSeason'].forEach(i=>setI(i)); return; }
+  const list = a => a.length>1 ? a.slice(0,-1).join(', ')+' y '+a.at(-1) : a[0];
+  // tendencia
+  const third=Math.max(1,Math.floor(mS.length/3)), avg=a=>a.reduce((x,y)=>x+y,0)/(a.length||1);
+  const up = avg(mS.slice(-third)) > avg(mS.slice(0,third))*1.05, down = avg(mS.slice(-third)) < avg(mS.slice(0,third))*0.95;
+  setI('iTrend',
+    `Las ventas tienden a arrancar el año con menos fuerza y a repuntar hacia el cierre, un ritmo que se repite de un año a otro.`,
+    f.y ? `Dentro del año seleccionado, la trayectoria ${up?'parece ganar impulso con el paso de los meses':down?'da señales de moderarse hacia el final':'luce relativamente estable'}; la utilidad acompaña con oscilaciones más contenidas.`
+        : `La tendencia ${up?'se ve pausada al inicio del periodo y parece tomar impulso en la segunda mitad':down?'sugiere cierta pérdida de ritmo hacia el final del periodo':'luce relativamente estable a lo largo del periodo'}; la utilidad se mueve de forma más contenida que las ventas.`);
+  // categorías: volumen vs valor
+  if(catA.length>1){
+    const byN=[...catA].sort((a,b)=>b.n-a.n)[0], val=[...catA].sort((a,b)=>(b.s-b.n)-(a.s-a.n))[0];
+    setI('iCat', byN.c!==val.c
+      ? `<b>${byN.c}</b> concentra el grueso de los pedidos, mientras que <b>${val.c}</b> pesa más en ventas que en número de pedidos: su aporte parece venir de pedidos de mayor valor más que de la frecuencia.`
+      : `<b>${byN.c}</b> destaca tanto en pedidos como en ventas; las demás categorías aportan un valor más repartido.`,
+      `La categoría parece diferenciar el valor del pedido con más claridad que la región o el segmento.`);
+  } else setI('iCat', `Con el filtro activo solo se observa <b>${catA[0].c}</b>; la comparación entre volumen y valor requiere ver varias categorías.`);
+  // subcategorías
+  const losers=subs.filter(x=>x.p<0).reverse().map(x=>x.k), leaders=subs.slice(0,2).filter(x=>x.p>0).map(x=>x.k);
+  setI('iSub',
+    leaders.length && `Buena parte de la utilidad parece apoyarse en pocas subcategorías, con <b>${list(leaders)}</b> al frente.`,
+    losers.length ? `<b>${list(losers.slice(0,3))}</b> ${losers.length>1?'dan':'da'} señales de erosionar la rentabilidad; podría valer la pena mirar sus precios y descuentos con más detalle.`
+                  : `Con estos filtros no se aprecian subcategorías que resten utilidad.`);
+  // descuento
+  const low=(byD['0%']?.length||0)+(byD['1–20%']?.length||0);
+  setI('iDisc',
+    low>=rows.length/2 ? `La mayor parte de los pedidos ocurre con descuentos bajos o nulos.` : `Con estos filtros los descuentos altos tienen una presencia inusual.`,
+    bm.length>1 && `A medida que el descuento crece, el margen tiende a deteriorarse sin que las ventas respondan en la misma medida: la relación no luce lineal.`);
+  // regiones
+  const bySt=groupBy(rows,'st'); const st=Object.keys(bySt).map(k=>({st:k,...agg(bySt[k])})).sort((a,b)=>a.p-b.p)[0];
+  const rm=[...regs].sort((a,b)=>b.m-a.m);
+  setI('iRegion',
+    regs.length>1 && `Las diferencias entre regiones parecen más leves que entre categorías. <b>${rm[0].r}</b> tiende a combinar buen volumen con mejor margen, mientras <b>${rm.at(-1).r}</b> parece rezagarse en rentabilidad.`,
+    st && st.p<0 && `<b>${st.st}</b> llama la atención: vende de forma relevante, pero no logra traducirlo en utilidad.`);
+  // estacionalidad
+  const peaks=seas.map((v,i)=>({v,i})).filter(x=>x.v>=mx*0.8).map(x=>MES[x.i].toLowerCase());
+  setI('iSeason',
+    `El último tramo del año parece concentrar buena parte de la actividad, con ${list(peaks)} como ${peaks.length>1?'meses':'mes'} más ${peaks.length>1?'fuertes':'fuerte'}; el inicio del año suele ser más tranquilo.`,
+    `Anticipar inventario y campañas hacia el cierre podría acompañar mejor ese ritmo.`);
 }
 update();
 </script>
