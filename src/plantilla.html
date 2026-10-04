@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Superstore · Executive Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
+<style>
+:root{
+  /* Paleta formal: grafito + petróleo; borgoña solo para pérdidas */
+  --ink:#161b22; --navy:#1f4e5f; --steel:#6d8f99; --mist:#c3d1d5; --haze:#e7eef0;
+  --accent:#3a3f47; --soft:#f5f6f6; --neg:#8e2c3a; --pos:#1f4e5f;
+  --bg:#f3f3f1; --card:#ffffff; --text:#1d2127; --muted:#6b7078; --line:#e2e2de;
+  --gap:20px; --r:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.5;-webkit-font-smoothing:antialiased}
+.top{background:var(--ink);color:#fff}
+.top .in{max-width:1440px;margin:0 auto;padding:22px 28px;display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:18px}
+.brand .eyebrow{font-size:11px;letter-spacing:1.6px;text-transform:uppercase;color:var(--mist);font-weight:600}
+.brand h1{font-size:22px;font-weight:600;letter-spacing:-.2px;margin-top:4px}
+.brand p{font-size:13px;color:#a3aab3;margin-top:2px}
+.filters{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+.fg{display:flex;flex-direction:column;gap:4px}
+.fg label{font-size:10.5px;text-transform:uppercase;letter-spacing:1px;color:#8a929c;font-weight:500}
+.fg select{padding:8px 12px;border-radius:6px;border:1px solid #343c47;background:#212832;color:#fff;font:inherit;font-size:13px;min-width:130px;cursor:pointer}
+.fg select:focus{outline:2px solid var(--mist);outline-offset:1px}
+.fg select option{color:#111;background:#fff}
+button.reset{padding:8px 16px;border-radius:6px;border:1px solid var(--mist);background:transparent;color:#e6eaee;font:inherit;font-weight:600;font-size:13px;cursor:pointer;transition:.15s}
+button.reset:hover{background:#e6eaee;color:var(--ink)}
+.wrap{max-width:1440px;margin:0 auto;padding:var(--gap) 28px}
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:var(--gap);margin:calc(var(--gap)*-0) 0 var(--gap)}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;position:relative;overflow:hidden}
+.kpi::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--navy)}
+.kpi .l{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-weight:500}
+.kpi .v{font-size:28px;font-weight:700;color:var(--ink);margin:6px 0 4px;letter-spacing:-.5px;font-variant-numeric:tabular-nums}
+.kpi .d{font-size:12px;font-weight:600;color:var(--muted);display:inline-block;padding:2px 8px;border-radius:20px;background:#f2f4f7}
+.kpi .d.pos{color:var(--navy);background:var(--haze)} .kpi .d.neg{color:var(--neg);background:#fbeceb}
+.kpi .d:empty{display:none}
+.section-title{font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:var(--muted);font-weight:600;margin:6px 0 12px;display:flex;align-items:center;gap:10px}
+.section-title::after{content:"";flex:1;height:1px;background:var(--line)}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:var(--gap);margin-bottom:var(--gap)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:20px 22px 0;min-width:0;display:flex;flex-direction:column}
+.card h3{font-size:15px;font-weight:600;color:var(--ink)}
+.card .sub{font-size:12.5px;color:var(--muted);margin:2px 0 14px}
+.s8{grid-column:span 8}.s4{grid-column:span 4}.s6{grid-column:span 6}.s12{grid-column:span 12}
+.ch{position:relative;height:290px}.ch.tall{height:360px}.ch.map{height:420px}
+.insight{margin:18px -22px 0;padding:14px 22px 16px 19px;background:var(--soft);border-top:1px solid var(--line);border-left:3px solid var(--navy);border-radius:0 0 var(--r) var(--r);font-size:13.5px;color:#3b4048;flex:1}
+.insight .tag{display:block;font-size:10.5px;letter-spacing:1.2px;text-transform:uppercase;color:var(--navy);font-weight:700;margin-bottom:4px}
+.insight p+p{margin-top:6px}
+.insight b{color:var(--ink);font-weight:600}
+.neg{color:var(--neg)!important} .pos{color:var(--navy)!important}
+footer{font-size:12px;color:var(--muted);text-align:center;padding:10px 0 24px}
+.calidad{font-size:12.5px;color:var(--muted);background:var(--card);border:1px solid var(--line);border-left:3px solid var(--steel);border-radius:var(--r);padding:10px 16px;margin-bottom:12px}
+.calidad b{color:var(--ink);font-weight:600}
+@media (max-width:1100px){.kpis{grid-template-columns:repeat(3,1fr)}}
+@media (max-width:980px){.s8,.s4,.s6{grid-column:span 12}}
+@media (max-width:600px){.kpis{grid-template-columns:repeat(2,1fr)}.top .in,.wrap{padding-left:16px;padding-right:16px}.fg select{min-width:0;width:100%}.fg{flex:1 1 45%}}
+/* Vistas pre-generadas por generar.py: solo se muestra la del filtro activo */
+.vista{display:none}.vista.on{display:block}
+</style>
+</head>
+<body>
+<div class="top"><div class="in">
+  <div class="brand"><div class="eyebrow">Executive Overview</div><h1>Superstore · Ventas y Rentabilidad</h1><p>2014–2017 · {{N_LINEAS}} líneas de pedido · Estados Unidos</p></div>
+  <div class="filters">
+    <div class="fg"><label for="fYear">Año</label><select id="fYear">{{OPC_ANIO}}</select></div>
+    <div class="fg"><label for="fRegion">Región</label><select id="fRegion">{{OPC_REGION}}</select></div>
+    <button class="reset" id="reset">Limpiar filtros</button>
+  </div>
+</div></div>
+
+<div class="wrap">
+{{VISTAS}}
+<div class="calidad">{{CALIDAD}}</div>
+<footer>Fuente: Sample – Superstore · Generado con Python + Plotly</footer>
+</div>
+
+<script>
+// Único JS: mostrar la vista que corresponde a los filtros (los gráficos ya vienen hechos desde Python)
+const fy=document.getElementById('fYear'), fr=document.getElementById('fRegion');
+function show(){
+  const k=(fy.value||'all')+'|'+(fr.value||'all');
+  document.querySelectorAll('.vista').forEach(v=>{
+    const on=v.dataset.key===k; v.classList.toggle('on',on);
+    if(on) v.querySelectorAll('.plotly-graph-div').forEach(g=>Plotly.Plots.resize(g));
+  });
+}
+fy.onchange=fr.onchange=show;
+document.getElementById('reset').onclick=()=>{fy.value='';fr.value='';show();};
+show();
+</script>
+</body>
+</html>
