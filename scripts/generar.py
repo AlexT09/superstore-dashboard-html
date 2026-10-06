@@ -12,7 +12,6 @@ solo muestra la que coincide con los filtros.
   - Revisión de calidad: faltantes, duplicados y atípicos por IQR.
   - Mapa animado por año con animation_frame.
   - Mapa coroplético por estado (px.choropleth, locationmode="USA-states").
-  - Bandas de Bollinger (media móvil ± k desviaciones) sobre las ventas mensuales.
 """
 from pathlib import Path
 
@@ -148,40 +147,25 @@ def html_fig(fig):
 
 
 # ---------------------------------------------------------------- gráficos
-def bbands(price, window_size=6, num_of_std=2):
-    """Bandas de Bollinger (misma función que en el Módulo 5, ventana de 6 meses y ±2σ)."""
-    rolling_mean = price.rolling(window=window_size, min_periods=3).mean()
-    rolling_std = price.rolling(window=window_size, min_periods=3).std()
-    upper_band = rolling_mean + rolling_std * num_of_std
-    lower_band = (rolling_mean - rolling_std * num_of_std).clip(lower=0)  # las ventas no son negativas
-    return rolling_mean, upper_band, lower_band
+def etiqueta_mes(k):
+    """'2017-11' -> 'Nov 17'"""
+    return MES[int(k[5:]) - 1] + " " + k[2:4]
 
 
-def fig_tendencia(d, base):
+def fig_tendencia(d):
     m = d.groupby("mes")[["ventas", "utilidad"]].sum().sort_index()
-    # Las bandas se calculan sobre la serie completa (todos los años) para que un año
-    # filtrado también tenga bandas desde enero; luego se recortan a los meses visibles.
-    serie = base.groupby("mes")["ventas"].sum().sort_index()
-    media, sup, inf = (b.reindex(m.index) for b in bbands(serie))
-    x = [MES[int(k[5:]) - 1] + " " + k[2:4] for k in m.index]
-    fuera = (m["ventas"] > sup) | (m["ventas"] < inf)
+    x = [etiqueta_mes(k) for k in m.index]
     fig = go.Figure([
-        go.Bar(name="Ventas", x=x, y=m["ventas"], marker_color=NAVY_A, **money_hover("Ventas", m["ventas"])),
-        go.Scatter(name="Banda sup.", x=x, y=sup, mode="lines", line=dict(width=0), showlegend=False, hoverinfo="skip"),
-        go.Scatter(name="Banda ±2σ", x=x, y=inf, mode="lines", line=dict(width=0), fill="tonexty",
-                   fillcolor="rgba(109,143,153,.18)", hoverinfo="skip"),
-        go.Scatter(name="Media móvil 6m", x=x, y=media, mode="lines",
-                   line=dict(color=K["steel"], dash="dash", width=2), **money_hover("Media móvil", media)),
+        go.Scatter(name="Ventas", x=x, y=m["ventas"], mode="lines+markers",
+                   line=dict(color=K["navy"], width=2.5), marker=dict(size=4, color=K["navy"]),
+                   **money_hover("Ventas", m["ventas"])),
         go.Scatter(name="Utilidad", x=x, y=m["utilidad"], mode="lines",
-                   line=dict(color=K["acc"], width=2, shape="spline", smoothing=0.6), **money_hover("Utilidad", m["utilidad"])),
-        go.Scatter(name="Fuera de banda", x=[v for v, f in zip(x, fuera) if f], y=m["ventas"][fuera],
-                   mode="markers", marker=dict(symbol="diamond", size=9, color=K["ink"], line=dict(color="#fff", width=1)),
-                   hoverinfo="skip"),
+                   line=dict(color=K["steel"], width=2, dash="dot"), **money_hover("Utilidad", m["utilidad"])),
     ])
     estilo(fig, 290, hovermode="x unified")
     fig.update_xaxes(type="category", nticks=16, tickangle=0, fixedrange=False)  # zoom horizontal permitido
     fig.update_yaxes(tickformat="$~s")
-    return fig, m["ventas"].tolist(), [lab for lab, f in zip(x, fuera) if f]
+    return fig, m["ventas"]
 
 
 def fig_categorias(d, A):
@@ -343,7 +327,7 @@ def vista(anio, region):
     if prev and not prev["n"]:
         prev = None
 
-    f_trend, mS, fuera = fig_tendencia(d, base)
+    f_trend, mS = fig_tendencia(d)
     f_cat, cat = fig_categorias(d, A)
     f_sub, sub = fig_subcategorias(d)
     f_disc, bm = fig_descuento(d)
@@ -351,64 +335,76 @@ def vista(anio, region):
     f_map, st = fig_mapa(d, animar=anio is None)
     f_seas, seas, mx = fig_estacionalidad(d, A)
 
-    # --- insights
-    third = max(1, len(mS) // 3)
-    avg = lambda a: sum(a) / (len(a) or 1)
-    up, down = avg(mS[-third:]) > avg(mS[:third]) * 1.05, avg(mS[-third:]) < avg(mS[:third]) * 0.95
+    # --- insights: qué pasa (con una cifra) + qué significa o qué hacer
+    if anio is None:
+        por_anio = d.groupby("anio")["ventas"].sum()
+        crec = (por_anio.iloc[-1] / por_anio.iloc[0] - 1) * 100 if len(por_anio) > 1 else None
+        i_ritmo = crec is not None and (
+            f"Las ventas pasaron de {fmt_money(por_anio.iloc[0])} en {por_anio.index[0]} a "
+            f"{fmt_money(por_anio.iloc[-1])} en {por_anio.index[-1]} ({'+' if crec >= 0 else '−'}{abs(crec):.0f}%).")
+    else:
+        s2 = d.loc[d["m"] > 6, "ventas"].sum() / (A["s"] or 1) * 100
+        i_ritmo = f"El segundo semestre concentra el {s2:.0f}% de las ventas del año."
     i_trend = insight(
-        "Las ventas tienden a arrancar el año con menos fuerza y a repuntar hacia el cierre, un ritmo que se repite de un año a otro.",
-        (f"Dentro del año seleccionado, la trayectoria {'parece ganar impulso con el paso de los meses' if up else 'da señales de moderarse hacia el final' if down else 'luce relativamente estable'}; la utilidad acompaña con oscilaciones más contenidas.")
-        if anio else
-        (f"La tendencia {'se ve pausada al inicio del periodo y parece tomar impulso en la segunda mitad' if up else 'sugiere cierta pérdida de ritmo hacia el final del periodo' if down else 'luce relativamente estable a lo largo del periodo'}; la utilidad se mueve de forma más contenida que las ventas."),
-        f"{'Los meses' if len(fuera) > 1 else 'El mes'} {lista(fuera[:4])}{'…' if len(fuera) > 4 else ''} {'quedan' if len(fuera) > 1 else 'queda'} fuera de la banda de Bollinger (media móvil de 6 meses ± 2σ): son ventas atípicas frente al ritmo reciente."
-        if fuera else "Todas las ventas mensuales quedan dentro de la banda de Bollinger (media móvil de 6 meses ± 2σ): no hay meses atípicos.")
+        f"El mejor mes fue <b>{etiqueta_mes(mS.idxmax())}</b> ({fmt_money(mS.max())}) y el más bajo "
+        f"<b>{etiqueta_mes(mS.idxmin())}</b> ({fmt_money(mS.min())}).",
+        i_ritmo)
 
     if len(cat) > 1:
-        by_n = cat.sort_values("n", ascending=False).iloc[0]["c"]
-        val = cat.assign(g=cat["s"] - cat["n"]).sort_values("g", ascending=False).iloc[0]["c"]
+        val = cat.assign(g=cat["s"] - cat["n"]).sort_values("g", ascending=False).iloc[0]
+        vol = cat.sort_values("n", ascending=False).iloc[0]
         i_cat = insight(
-            f"<b>{by_n}</b> concentra el grueso de los pedidos, mientras que <b>{val}</b> pesa más en ventas que en número de pedidos: su aporte parece venir de pedidos de mayor valor más que de la frecuencia."
-            if by_n != val else f"<b>{by_n}</b> destaca tanto en pedidos como en ventas; las demás categorías aportan un valor más repartido.",
-            "La categoría parece diferenciar el valor del pedido con más claridad que la región o el segmento.")
+            f"<b>{vol['c']}</b> tiene el {vol['n']:.0f}% de los pedidos pero el {vol['s']:.0f}% de las ventas; "
+            f"<b>{val['c']}</b> logra el {val['s']:.0f}% de las ventas con el {val['n']:.0f}% de los pedidos: sus pedidos valen más."
+            if vol["c"] != val["c"] else
+            f"<b>{vol['c']}</b> lidera en pedidos ({vol['n']:.0f}%) y en ventas ({vol['s']:.0f}%).")
     else:
-        i_cat = insight(f"Con el filtro activo solo se observa <b>{cat.iloc[0]['c']}</b>; la comparación entre volumen y valor requiere ver varias categorías.")
+        i_cat = insight(f"Con el filtro activo solo se ve <b>{cat.iloc[0]['c']}</b>.")
 
-    losers = sub[sub < 0].sort_values().index.tolist()
-    leaders = sub.head(2)[sub.head(2) > 0].index.tolist()
+    losers = sub[sub < 0].sort_values()
+    leaders = sub.head(2)[sub.head(2) > 0]
     i_sub = insight(
-        leaders and f"Buena parte de la utilidad parece apoyarse en pocas subcategorías, con <b>{lista(leaders)}</b> al frente.",
-        f"<b>{lista(losers[:3])}</b> {'dan' if len(losers) > 1 else 'da'} señales de erosionar la rentabilidad; podría valer la pena mirar sus precios y descuentos con más detalle."
-        if losers else "Con estos filtros no se aprecian subcategorías que resten utilidad.")
+        len(leaders) and A["p"] > 0 and
+        f"<b>{lista(leaders.index)}</b> generan el {leaders.sum() / A['p'] * 100:.0f}% de la utilidad.",
+        f"<b>{lista(losers.index[:3])}</b> {'pierden' if len(losers) > 1 else 'pierde'} dinero "
+        f"({fmt_money(losers.sum())} en total): conviene revisar sus precios y descuentos."
+        if len(losers) else "Ninguna subcategoría pierde dinero con estos filtros.")
 
-    low = d["banda"].isin(["0%", "1–20%"]).sum()
-    i_disc = insight(
-        "La mayor parte de los pedidos ocurre con descuentos bajos o nulos." if low >= len(d) / 2
-        else "Con estos filtros los descuentos altos tienen una presencia inusual.",
-        len(bm) > 1 and "A medida que el descuento crece, el margen tiende a deteriorarse sin que las ventas respondan en la misma medida: la relación no luce lineal.")
+    if len(bm) > 1:
+        lo, hi = bm.iloc[0], bm.iloc[-1]
+        i_disc = insight(
+            f"Con descuento {lo['b']} el margen es {pct(lo['m'])}; con descuento {hi['b']} cae a {pct(hi['m'])}.",
+            hi["m"] < 0 and "Los descuentos altos venden con pérdida: conviene ponerles un tope.")
+    else:
+        i_disc = insight(f"Con estos filtros todas las ventas caen en el tramo {bm.iloc[0]['b']} (margen {pct(bm.iloc[0]['m'])}).")
 
-    rm = reg.sort_values("m", ascending=False)
-    i_reg = insight(
-        len(reg) > 1 and f"Las diferencias entre regiones parecen más leves que entre categorías. <b>{rm.iloc[0]['r']}</b> tiende a combinar buen volumen con mejor margen, mientras <b>{rm.iloc[-1]['r']}</b> parece rezagarse en rentabilidad.",
-        len(reg) == 1 and f"Con el filtro activo solo se observa <b>{reg.iloc[0]['r']}</b>; el mapa muestra cómo se reparte entre sus estados.")
+    if len(reg) > 1:
+        rm = reg.sort_values("m", ascending=False)
+        i_reg = insight(
+            f"<b>{reg.iloc[0]['r']}</b> es la región que más vende ({reg.iloc[0]['s'] / A['s'] * 100:.0f}% de las ventas).",
+            f"<b>{rm.iloc[0]['r']}</b> tiene el mejor margen ({pct(rm.iloc[0]['m'])}) y <b>{rm.iloc[-1]['r']}</b> el más bajo ({pct(rm.iloc[-1]['m'])}).")
+    else:
+        i_reg = insight(f"Con el filtro activo solo se ve <b>{reg.iloc[0]['r']}</b>; el mapa muestra cómo se reparte entre sus estados.")
 
     neg = st[st["p"] < 0].sort_values("p")
-    top = st.sort_values("p", ascending=False)
+    top = st[st["p"] > 0].sort_values("p", ascending=False)
     i_map = insight(
-        f"<b>{len(neg)} de {len(st)}</b> estados operan con utilidad negativa; las mayores pérdidas se concentran en <b>{lista(neg['estado'].head(3))}</b>; conviene revisar sus descuentos y la mezcla de productos."
-        if len(neg) else f"Ninguno de los {len(st)} estados opera con utilidad negativa en esta selección.",
-        top.iloc[0]["p"] > 0 and f"<b>{lista(top['estado'].head(2))}</b> {'aportan' if len(top) > 1 else 'aporta'} la mayor utilidad; el color indica el margen, no el volumen.",
-        anio is None and "Con ▶ o el deslizador se recorre el margen por estado año a año.")
+        f"<b>{len(neg)} de {len(st)}</b> estados pierden dinero; las mayores pérdidas están en <b>{lista(neg['estado'].head(3))}</b>."
+        if len(neg) else f"Ninguno de los {len(st)} estados pierde dinero con estos filtros.",
+        len(top) and f"<b>{lista(top['estado'].head(2))}</b> {'aportan' if len(top) > 1 else 'aporta'} la mayor utilidad.",
+        anio is None and "Con ▶ se recorre el margen por estado año a año.")
 
-    peaks = [MES[i].lower() for i, v in enumerate(seas) if v >= mx * 0.8]
+    peaks = [i for i, v in enumerate(seas) if v >= mx * 0.8]
     i_seas = insight(
-        f"El último tramo del año parece concentrar buena parte de la actividad, con {lista(peaks)} como {'meses' if len(peaks) > 1 else 'mes'} más {'fuertes' if len(peaks) > 1 else 'fuerte'}; el inicio del año suele ser más tranquilo.",
-        "Anticipar inventario y campañas hacia el cierre podría acompañar mejor ese ritmo.")
+        f"<b>{lista(MES[i] for i in peaks)}</b> {'concentran' if len(peaks) > 1 else 'concentra'} el "
+        f"{sum(seas[i] for i in peaks):.0f}% de las ventas.",
+        "Conviene preparar inventario y campañas antes de esos meses.")
 
     return f'''<div class="vista" data-key="{key}">
 {kpis(A, cur, prev, lbl)}
 <div class="section-title">Desempeño comercial</div>
 <section class="grid">
-{card("s8", "Evolución mensual", "Ventas (barras), media móvil con banda de Bollinger ±2σ y utilidad por mes", f_trend, i_trend)}
+{card("s8", "Evolución mensual", "Ventas (línea continua) y utilidad (línea punteada) por mes", f_trend, i_trend)}
 {card("s4", "Categorías: volumen vs. valor", "Participación en pedidos y en ventas", f_cat, i_cat)}
 </section>
 <div class="section-title">Rentabilidad</div>

@@ -2,12 +2,14 @@
 
 Dashboard web sobre el dataset *Sample – Superstore* (2014–2017), generado con **Python (pandas + Plotly)** sobre una plantilla **HTML**. Tiene filtros por año y región y una lectura interpretativa (insight) debajo de cada visualización.
 
+**Ver online:** https://alext09.github.io/superstore-dashboard-html/
+
 ![Captura del dashboard](assets/dashboard_screenshot.png)
 
 ## Contenido
 
 - **KPIs**: ventas, utilidad, margen, pedidos y ticket medio, con variación frente al año anterior.
-- **Evolución mensual** con **bandas de Bollinger** (media móvil de 6 meses ± 2σ) para marcar meses atípicos.
+- **Evolución mensual** de ventas y utilidad.
 - **Categorías**, **utilidad por subcategoría** e **impacto del descuento en el margen**.
 - **Mapa de margen por estado** (`px.choropleth`, `USA-states`), animado por año con `animation_frame`.
 - **Regiones** y **estacionalidad**.
