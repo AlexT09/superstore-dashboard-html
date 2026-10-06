@@ -156,11 +156,9 @@ def fig_tendencia(d):
     m = d.groupby("mes")[["ventas", "utilidad"]].sum().sort_index()
     x = [etiqueta_mes(k) for k in m.index]
     fig = go.Figure([
-        go.Scatter(name="Ventas", x=x, y=m["ventas"], mode="lines+markers",
-                   line=dict(color=K["navy"], width=2.5), marker=dict(size=4, color=K["navy"]),
-                   **money_hover("Ventas", m["ventas"])),
+        go.Bar(name="Ventas", x=x, y=m["ventas"], marker_color=NAVY_A, **money_hover("Ventas", m["ventas"])),
         go.Scatter(name="Utilidad", x=x, y=m["utilidad"], mode="lines",
-                   line=dict(color=K["steel"], width=2, dash="dot"), **money_hover("Utilidad", m["utilidad"])),
+                   line=dict(color=K["acc"], width=2, shape="spline", smoothing=0.6), **money_hover("Utilidad", m["utilidad"])),
     ])
     estilo(fig, 290, hovermode="x unified")
     fig.update_xaxes(type="category", nticks=16, tickangle=0, fixedrange=False)  # zoom horizontal permitido
@@ -404,7 +402,7 @@ def vista(anio, region):
 {kpis(A, cur, prev, lbl)}
 <div class="section-title">Desempeño comercial</div>
 <section class="grid">
-{card("s8", "Evolución mensual", "Ventas (línea continua) y utilidad (línea punteada) por mes", f_trend, i_trend)}
+{card("s8", "Evolución mensual", "Ventas (barras) y utilidad (línea) por mes", f_trend, i_trend)}
 {card("s4", "Categorías: volumen vs. valor", "Participación en pedidos y en ventas", f_cat, i_cat)}
 </section>
 <div class="section-title">Rentabilidad</div>
